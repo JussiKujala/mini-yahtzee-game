@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Text, View, Pressable, Keyboard, TextInput } from 'react-native';
 import styles from '../style/style';
 
-export default Home = () => {
+export default Home = ({navigation}) => {
 
     const [playerName, setPlayerName] = useState('');
     const [hasPlayerName, setHasPlayerName] = useState(false)
@@ -31,7 +31,7 @@ export default Home = () => {
         <>
         <Text>Rules of the game here..</Text>
         <Text>Good luck, {playerName}</Text>
-        <Pressable>
+        <Pressable onPress={() => navigation.navigate('Gameboard', {player: playerName})}>
             <Text>PLAY</Text>
         </Pressable>
         </>
