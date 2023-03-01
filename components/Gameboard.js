@@ -24,6 +24,11 @@ export default Gameboard = ({ route }) => {
   const [diceSpots, setDiceSpots] = useState(new Array(NBR_OF_DICES).fill(0));
   const [dicePointsTotal, setDicePointsTotal] = useState(new Array(MAX_SPOT).fill(0));
 
+  const [sum, setSum] = useState(0);
+
+  
+
+
 
   const row = [];
   for (let i = 0; i < NBR_OF_DICES; i++) {
@@ -73,7 +78,13 @@ export default Gameboard = ({ route }) => {
     if (playerName === '' && route.params?.player) {
       setPlayerName(route.params.player);
     }
-  }, []);
+    const newSum = dicePointsTotal.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+    if (newSum >= 63) {
+      setSum(newSum + 50);
+    } else {
+      setSum(newSum);
+    }
+}, [dicePointsTotal, playerName, route.params?.player]);
 
   function getDiceColor(i) {
     return selectedDices[i] ? "black" : "steelblue"
@@ -137,6 +148,8 @@ function getSpotTotal(i){
       <Pressable style={styles.button} onPress={() => throwDices()}>
         <Text style={styles.buttonText}>Throw dices</Text>
       </Pressable>
+      <Text>Total: {sum}</Text>
+      <Text>You are {63 - sum} points away from bonus</Text>
       <View style={styles.dicepoints}><Grid>{pointsRow}</Grid></View>
       <View style={styles.dicepoints}><Grid>{ButtonsRow}</Grid></View>
       <Text>Player: {playerName}</Text>
