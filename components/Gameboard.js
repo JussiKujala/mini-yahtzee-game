@@ -99,6 +99,11 @@ export default Gameboard = ({ route }) => {
     }
   }
 
+    const startNewGame = () => {
+    setNbrOfThrowsleft(NBR_OF_THROWS);
+    // Add any other necessary reset logic here
+  };
+
   const selectDice = (i) => {
     let dices = [...selectedDices];
     dices[i] = selectedDices[i] ? false : true;
@@ -135,9 +140,11 @@ function getSpotTotal(i){
         spots[i] = randomNumber;
       }
     }
+    if (nbrOfThrowsleft > 0) {
     setNbrOfThrowsleft(nbrOfThrowsleft - 1);
     setDiceSpots(spots);
     setStatus('Select and throw dices again');
+    }
   }
 
   return (
@@ -146,7 +153,11 @@ function getSpotTotal(i){
       <Text style={styles.gameinfo}>Throws left: {nbrOfThrowsleft}</Text>
       <Text style={styles.gameinfo}>{status}</Text>
       <Pressable style={styles.button} onPress={() => throwDices()}>
+      {nbrOfThrowsleft > 0 ? (
         <Text style={styles.buttonText}>Throw dices</Text>
+      ):(
+        <Text style={styles.buttonText} onPress={startNewGame} >Start new game</Text>
+      )}
       </Pressable>
       <Text>Total: {sum}</Text>
       <Text>You are {63 - sum} points away from bonus</Text>
