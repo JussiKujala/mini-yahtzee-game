@@ -2,9 +2,10 @@ import { Text, View, Pressable } from 'react-native';
 import styles from '../style/style';
 import { useEffect, useState } from 'react';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { NBR_OF_DICES, NBR_OF_THROWS, MAX_SPOT } from '../constants/Game';
+import { NBR_OF_DICES, NBR_OF_THROWS, MAX_SPOT, SCOREBOARD_KEY } from '../constants/Game';
 import { Grid, Col } from 'react-native-easy-grid';
 import style from '../style/style';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 let board = [];
 
@@ -26,7 +27,7 @@ export default Gameboard = ({ route }) => {
 
   const [sum, setSum] = useState(0);
 
-  
+  const [scores, setScores] = useState([]);
 
 
 
@@ -85,6 +86,18 @@ export default Gameboard = ({ route }) => {
       setSum(newSum);
     }
 }, [dicePointsTotal, playerName, route.params?.player]);
+
+useEffect(() => {
+  if (nbrOfThrowsleft === 0) {
+    setStatus('select your points');
+  }
+  else if (nbrOfThrowsleft < 0 ){
+    setNbrOfThrowsleft(NBR_OF_THROWS - 1);
+  }
+  else if (selectedDicePoints.every(x=>x)){
+    savePlayerPoints();
+  }
+}, [nbrOfThrowsleft])
 
   function getDiceColor(i) {
     return selectedDices[i] ? "black" : "steelblue"
@@ -146,6 +159,36 @@ function getSpotTotal(i){
     setStatus('Select and throw dices again');
     }
   }
+
+const getScoreboardData = async () => {
+  try{
+    const jsonValue = await AsyncStorage.getItem(SCOREBOARD_KEY);
+    if (jsonValue !== null){
+      let tmpScores = JSON.parse(jsonValue);
+      setScores(tmpScores);
+    }
+  }
+  catch (error){
+    console.log('Read error: ' + error.message);
+  }
+}
+
+const savePlayerPoints = async () => {
+  const playerPoints = {
+    name: playerName,
+    date: '3.3.2023', //replace this by real date
+    time: '09:00', //this too
+    points: 60 //this with real value
+   }
+   try{
+      const newScore = [...scores, playerPoints];
+      const jsonValue = JSON.stringify(newScore);
+      await AsyncStorage.setItem(SCOREBOARD_KEY, jsonValue);
+   }
+   catch (error) {
+    console.log('Read error: ' + error.message)
+   }
+}
 
   return (
     <View style={styles.gameboard}>
