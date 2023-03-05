@@ -11,11 +11,11 @@ export default Scoreboard = ({navigation}) => {
 const [scores, setScores] = useState([]);
 
 useEffect(() => {
-  const unsubscripe = navigation.addListener('focus', () => {
+  const unsubscribe = navigation.addListener('focus', () => {
     getScoreboardData();
   });
-  return unsubscripe;
-},[navigation]);
+  return unsubscribe;
+}, [navigation]);
 
 const getScoreboardData = async () => {
   try{

@@ -78,4 +78,8 @@ export default StyleSheet.create({
     width: 280,
     alignContent: 'center'
   },
+  disabledButton: {
+    backgroundColor: 'gray',
+    opacity: 0.5
+  }
 });

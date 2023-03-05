@@ -9,7 +9,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 let board = [];
 
-
 export default Gameboard = ({ route }) => {
 
   const [playerName, setPlayerName] = useState('');
@@ -18,18 +17,12 @@ export default Gameboard = ({ route }) => {
   //this array has the information whether dice is selected or not
   const [selectedDices, setSelectedDices] =
     useState(new Array(NBR_OF_DICES).fill(false));
-  //this arrray has the information wheter the spot count has been selected or not
   const [selectedDicePoints, setSelectedDicePoints] =
     useState(new Array(MAX_SPOT).fill(false));
-  //this array has total points for different spot counts
   const [diceSpots, setDiceSpots] = useState(new Array(NBR_OF_DICES).fill(0));
   const [dicePointsTotal, setDicePointsTotal] = useState(new Array(MAX_SPOT).fill(0));
-
   const [sum, setSum] = useState(0);
-
   const [scores, setScores] = useState([]);
-
-
 
   const row = [];
   for (let i = 0; i < NBR_OF_DICES; i++) {
@@ -84,19 +77,23 @@ export default Gameboard = ({ route }) => {
     } else {
       setSum(newSum);
     }
-}, [dicePointsTotal, playerName, route.params?.player]);
+  }, [dicePointsTotal, playerName, route.params?.player]);
 
-useEffect(() => {
-  if (nbrOfThrowsleft === 0) {
-    setStatus('select your points');
-  }
-  else if (nbrOfThrowsleft < 0 ){
-    setNbrOfThrowsleft(NBR_OF_THROWS - 1);
-  }
-  else if (selectedDicePoints.every(x=>x)){
-    savePlayerPoints();
-  }
-}, [nbrOfThrowsleft])
+  useEffect(() => {
+    if (nbrOfThrowsleft === 0) {
+      setStatus('select your points');
+    }
+    else if (nbrOfThrowsleft < 0) {
+      setNbrOfThrowsleft(NBR_OF_THROWS - 1);
+    }
+  }, [nbrOfThrowsleft, dicePointsTotal])
+
+  useEffect(() => {
+    if (selectedDicePoints.every(x => x)) {
+      savePlayerPoints();
+    }
+  }, [selectedDicePoints]);
+
 
   function getDiceColor(i) {
     return selectedDices[i] ? "black" : "steelblue"
@@ -111,16 +108,15 @@ useEffect(() => {
     }
   }
 
-    const startNewGame = () => {
+  const startNewGame = () => {
     setNbrOfThrowsleft(NBR_OF_THROWS);
-    setSum(0);
-    setSelectedDices(new Array(MAX_SPOT).fill(false));
+    setSelectedDices([]);
+    setSelectedDicePoints(new Array(MAX_SPOT).fill(false));
+    setStatus('');
     setDiceSpots(new Array(NBR_OF_DICES).fill(0));
     setDicePointsTotal(new Array(MAX_SPOT).fill(0));
-
-
-
-    // Add any other necessary reset logic here
+    setSum(0);
+    board = [];
   };
 
   const selectDice = (i) => {
@@ -129,9 +125,9 @@ useEffect(() => {
     setSelectedDices(dices);
   }
 
-function getSpotTotal(i){
-  return dicePointsTotal[i];
-}
+  function getSpotTotal(i) {
+    return dicePointsTotal[i];
+  }
 
   function selectDicePoints(i) {
     let selected = [...selectedDices];
@@ -159,54 +155,75 @@ function getSpotTotal(i){
       }
     }
     if (nbrOfThrowsleft > 0) {
-    setNbrOfThrowsleft(nbrOfThrowsleft - 1);
-    setDiceSpots(spots);
-    setStatus('Select and throw dices again');
+      setNbrOfThrowsleft(nbrOfThrowsleft - 1);
+      setDiceSpots(spots);
+      setStatus('Select and throw dices again');
     }
   }
 
-const getScoreboardData = async () => {
-  try{
-    const jsonValue = await AsyncStorage.getItem(SCOREBOARD_KEY);
-    if (jsonValue !== null){
-      let tmpScores = JSON.parse(jsonValue);
-      setScores(tmpScores);
+  const getScoreboardData = async () => {
+    try {
+      const jsonValue = await AsyncStorage.getItem(SCOREBOARD_KEY);
+      if (jsonValue !== null) {
+        let tmpScores = JSON.parse(jsonValue);
+        setScores(tmpScores);
+      } else {
+        await AsyncStorage.setItem(SCOREBOARD_KEY, JSON.stringify([]));
+      }
+    } catch (error) {
+      console.log('Read error: ' + error.message);
     }
   }
-  catch (error){
-    console.log('Read error: ' + error.message);
-  }
-}
 
-const savePlayerPoints = async () => {
-  const playerPoints = {
-    name: playerName,
-    date: '3.3.2023', //replace this by real date
-    time: '09:00', //this too
-    points: 60 //this with real value
-   }
-   try{
-      const newScore = [...scores, playerPoints];
-      const jsonValue = JSON.stringify(newScore);
-      await AsyncStorage.setItem(SCOREBOARD_KEY, jsonValue);
-   }
-   catch (error) {
-    console.log('Read error: ' + error.message)
-   }
-}
+  const savePlayerPoints = async () => {
+    const playerPoints = {
+      name: playerName,
+      date: new Date().toLocaleDateString(), 
+      time: new Date().toLocaleTimeString(), 
+      points: sum 
+    };
+    try {
+      const jsonValue = await AsyncStorage.getItem(SCOREBOARD_KEY);
+      if (jsonValue !== null) {
+        let tmpScores = JSON.parse(jsonValue);
+        const existingPlayerIndex = tmpScores.findIndex(p => p.name === playerName);
+        if (existingPlayerIndex >= 0) {
+          tmpScores[existingPlayerIndex] = playerPoints;
+        } else {
+          tmpScores.push(playerPoints);
+        }
+        setScores(tmpScores);
+        await AsyncStorage.setItem(SCOREBOARD_KEY, JSON.stringify(tmpScores));
+      } else {
+        setScores([playerPoints]);
+        await AsyncStorage.setItem(SCOREBOARD_KEY, JSON.stringify([playerPoints]));
+      }
+    }
+    catch (error) {
+      console.log('Read error: ' + error.message)
+    }
+  }  
+
 
   return (
     <View style={styles.gameboard}>
       <View style={styles.flex}>{row}</View>
       <Text style={styles.gameinfo}>Throws left: {nbrOfThrowsleft}</Text>
       <Text style={styles.gameinfo}>{status}</Text>
-      <Pressable style={styles.button} onPress={() => throwDices()}>
-      {nbrOfThrowsleft > 0 ? (
-        <Text style={styles.buttonText}>Throw dices</Text>
-      ):(
-        <Text style={styles.buttonText} onPress={startNewGame} >Start new game</Text>
+      {selectedDicePoints.every(x => x) ? (
+        <Pressable style={styles.button} onPress={startNewGame}>
+          <Text style={styles.buttonText}>Start New Game</Text>
+        </Pressable>
+      ) : (
+        <Pressable
+          style={[styles.button, nbrOfThrowsleft === 0 && styles.disabledButton]}
+          onPress={throwDices}
+          disabled={nbrOfThrowsleft === 0}
+        >
+          <Text style={styles.buttonText}>Throw Dices</Text>
+        </Pressable>
       )}
-      </Pressable>
+
       <Text>Total: {sum}</Text>
       <Text>You are {63 - sum} points away from bonus</Text>
       <View style={styles.dicepoints}><Grid>{pointsRow}</Grid></View>
