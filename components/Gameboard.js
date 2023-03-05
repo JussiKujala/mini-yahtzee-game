@@ -56,7 +56,6 @@ export default Gameboard = ({ route }) => {
     )
   }
 
-
   const ButtonsRow = [];
   for (let diceButton = 0; diceButton < MAX_SPOT; diceButton++) {
     ButtonsRow.push(
@@ -101,6 +100,13 @@ export default Gameboard = ({ route }) => {
 
     const startNewGame = () => {
     setNbrOfThrowsleft(NBR_OF_THROWS);
+    setSum(0);
+    setSelectedDices(new Array(MAX_SPOT).fill(false));
+    setDiceSpots(new Array(NBR_OF_DICES).fill(0));
+    setDicePointsTotal(new Array(MAX_SPOT).fill(0));
+
+
+
     // Add any other necessary reset logic here
   };
 
@@ -127,7 +133,6 @@ function getSpotTotal(i){
     selected.fill(false);
     setSelectedDices(selected);
     setSelectedDicePoints(selectedPoints);
-    setNbrOfThrowsleft(NBR_OF_THROWS);
     return points[i];
   }
 
