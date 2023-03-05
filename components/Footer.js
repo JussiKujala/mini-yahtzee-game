@@ -6,7 +6,7 @@ export default Footer = () => {
   return (
     <View style={styles.footer}>
       <Text style={styles.title}>
-        Author: Pekka Ojala
+        Author: Jussi Kujala
       </Text>
     </View>
   )
