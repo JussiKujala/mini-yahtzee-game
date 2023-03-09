@@ -188,9 +188,16 @@ export default Gameboard = ({ route }) => {
         let tmpScores = JSON.parse(jsonValue);
         const existingPlayerIndex = tmpScores.findIndex(p => p.name === playerName);
         if (existingPlayerIndex >= 0) {
-          tmpScores[existingPlayerIndex] = playerPoints;
+          const existingPlayer = tmpScores[existingPlayerIndex];
+          if (existingPlayer.points < playerPoints.points) {
+            tmpScores[existingPlayerIndex] = playerPoints;
+            setScores(tmpScores);
+            await AsyncStorage.setItem(SCOREBOARD_KEY, JSON.stringify(tmpScores));
+          }
         } else {
           tmpScores.push(playerPoints);
+          setScores(tmpScores);
+          await AsyncStorage.setItem(SCOREBOARD_KEY, JSON.stringify(tmpScores));
         }
         setScores(tmpScores);
         await AsyncStorage.setItem(SCOREBOARD_KEY, JSON.stringify(tmpScores));
@@ -211,7 +218,7 @@ export default Gameboard = ({ route }) => {
       <Text style={styles.gameinfo}>Throws left: {nbrOfThrowsleft}</Text>
       <Text style={styles.gameinfo}>{status}</Text>
       {selectedDicePoints.every(x => x) ? (
-        <Pressable style={styles.button} onPress={startNewGame}>
+        <Pressable style={styles.button} onPress={() => { startNewGame(); savePlayerPoints(); }}>
           <Text style={styles.buttonText}>Start New Game</Text>
         </Pressable>
       ) : (

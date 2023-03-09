@@ -3,6 +3,9 @@ import { StyleSheet } from 'react-native';
 export default StyleSheet.create({
   container: {
     flex: 1,
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: '#fff'
   },
   header: {
@@ -81,5 +84,31 @@ export default StyleSheet.create({
   disabledButton: {
     backgroundColor: 'gray',
     opacity: 0.5
+  },frontPageText:{
+    fontSize: 20
+  },textInput:{
+    borderWidth: 2,
+    borderColor: "#73CED6",
+    width: '80%'
+  },frontpageButton: {
+    margin: 5,
+    flexDirection: "row",
+    padding: 10,
+    backgroundColor: "#73CED6",
+    width: 150,
+    borderRadius: 15,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },gameInfo: {
+    fontSize: 15,
+    borderBottomWidth: 1, 
+    borderBottomColor: 'black', 
+    margin: 10 
+  },scoreboardText:{
+    borderBottomWidth: 1, 
+    borderBottomColor: 'black', 
+    margin: 10,
+    fontSize: 15 
   }
 });
+

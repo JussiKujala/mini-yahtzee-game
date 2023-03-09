@@ -4,6 +4,7 @@ import Gameboard from "./components/Gameboard";
 import Scoreboard from "./components/Scoreboard";
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import style from "./style/style";
 
 const Tab = createBottomTabNavigator();
 

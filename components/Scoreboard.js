@@ -22,6 +22,7 @@ const getScoreboardData = async () => {
     const jsonValue = await AsyncStorage.getItem(SCOREBOARD_KEY);
     if (jsonValue !== null){
       let tmpScores = JSON.parse(jsonValue);
+      tmpScores.sort((a, b) => b.points - a.points); // Sort by points in descending order
       setScores(tmpScores);
     }
   }
@@ -35,7 +36,7 @@ const getScoreboardData = async () => {
       <Header/>
       <View>
         {scores.map((player, i) => (
-          <Text key={i}>{i+1}. {player.name} {player.date} {player.time} {player.points} </Text>
+          <Text style={styles.scoreboardText} key={i}>{i+1}. {player.name} {player.date} {player.time} {player.points} </Text>
         ))}
       </View>
       <Footer/>
