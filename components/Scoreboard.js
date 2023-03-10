@@ -4,7 +4,7 @@ import Header from './Header'
 import styles from '../style/style';
 import Footer from './Footer'
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { NBR_OF_DICES, NBR_OF_THROWS, MAX_SPOT, SCOREBOARD_KEY } from '../constants/Game';
+import { NBR_OF_DICES, NBR_OF_THROWS, MAX_SPOT, SCOREBOARD_KEY, NBR_OF_SCOREBOARD_ROWS } from '../constants/Game';
 
 export default Scoreboard = ({navigation}) => {
 
@@ -44,20 +44,20 @@ const getScoreboardData = async () => {
     <ScrollView>
     <View>
     <Header />
-    <Text style={styles.gameInfo}>Top players</Text>
-      {scores.length > 0 ? (
-        <View>
-          {scores.map((player, i) => (
-            <Text style={styles.scoreboardText} key={i}>
-              {i + 1}. {player.name} {player.date} {player.time} {player.points}
-            </Text>
-          ))}
-          <Button title="Clear Scores" onPress={clearScoreboard} />
-        </View>
-      ) : (
-        <Text style={styles.emptyScoreboardText}>Scoreboard is empty</Text>
-      )}
-      <Footer />
+    <Text style={styles.topPlayers}>Top {NBR_OF_SCOREBOARD_ROWS} players</Text>
+    {scores.length > 0 ? (
+    <View>
+      {scores.slice(0, 7).map((player, i) => (
+        <Text style={styles.scoreboardText} key={i}>
+          {i + 1}. {player.name} {player.date} {player.time} {player.points}
+        </Text>
+      ))}
+      <Button title="Clear Scores" onPress={clearScoreboard} />
+    </View>
+  ) : (
+    <Text style={styles.emptyScoreboardText}>Scoreboard is empty</Text>
+  )}
+  <Footer />
     </View>
     </ScrollView>
   )

@@ -119,6 +119,11 @@ export default StyleSheet.create({
     textAlign: 'center',
     marginTop: 20,
     fontStyle: 'italic',
-  },
+  },topPlayers:{
+    fontSize: 20,
+    borderBottomWidth: 1, 
+    borderBottomColor: 'black', 
+    margin: 10
+  }
 });
 

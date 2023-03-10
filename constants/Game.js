@@ -5,4 +5,4 @@ export const MAX_SPOT = 6;
 export const SCOREBOARD_KEY = '@scoreboard';
 export const BONUS_POINTS = 50;
 export const BONUS_POINTS_LIMIT = 63;
-
+export const NBR_OF_SCOREBOARD_ROWS = 7;
