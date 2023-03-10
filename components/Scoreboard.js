@@ -44,6 +44,7 @@ const getScoreboardData = async () => {
     <ScrollView>
     <View>
     <Header />
+    <Text style={styles.gameInfo}>Top players</Text>
       {scores.length > 0 ? (
         <View>
           {scores.map((player, i) => (
