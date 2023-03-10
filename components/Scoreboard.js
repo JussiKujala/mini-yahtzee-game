@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import { Text, View } from 'react-native';
+import { ScrollView, Text, View, Button } from 'react-native';
 import Header from './Header'
 import styles from '../style/style';
 import Footer from './Footer'
@@ -17,6 +17,15 @@ useEffect(() => {
   return unsubscribe;
 }, [navigation]);
 
+const clearScoreboard = async () => {
+  try {
+    await AsyncStorage.removeItem(SCOREBOARD_KEY);
+    setScores([]); // update the state to clear the scoreboard
+  } catch (error) {
+    console.log('Clear error: ' + error.message);
+  }
+};
+
 const getScoreboardData = async () => {
   try{
     const jsonValue = await AsyncStorage.getItem(SCOREBOARD_KEY);
@@ -32,14 +41,23 @@ const getScoreboardData = async () => {
 }
 
   return (
+    <ScrollView>
     <View>
-      <Header/>
-      <View>
-        {scores.map((player, i) => (
-          <Text style={styles.scoreboardText} key={i}>{i+1}. {player.name} {player.date} {player.time} {player.points} </Text>
-        ))}
-      </View>
-      <Footer/>
+    <Header />
+      {scores.length > 0 ? (
+        <View>
+          {scores.map((player, i) => (
+            <Text style={styles.scoreboardText} key={i}>
+              {i + 1}. {player.name} {player.date} {player.time} {player.points}
+            </Text>
+          ))}
+          <Button title="Clear Scores" onPress={clearScoreboard} />
+        </View>
+      ) : (
+        <Text style={styles.emptyScoreboardText}>Scoreboard is empty</Text>
+      )}
+      <Footer />
     </View>
+    </ScrollView>
   )
 }

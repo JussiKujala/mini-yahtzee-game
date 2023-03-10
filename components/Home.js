@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Text, View, Pressable, Keyboard, TextInput } from 'react-native';
 import styles from '../style/style';
 import Gameboard from './Gameboard';
+import { NBR_OF_DICES, NBR_OF_THROWS, MIN_SPOT, MAX_SPOT, SCOREBOARD_KEY, BONUS_POINTS_LIMIT, BONUS_POINTS} from '../constants/Game';
 
 export default Home = ({ navigation }) => {
 
@@ -18,6 +19,7 @@ export default Home = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
+            <Header/>
             {!hasPlayerName
                 ?
                 <>
@@ -30,23 +32,19 @@ export default Home = ({ navigation }) => {
                 :
                 <>
                     <Text style={styles.gameInfo}>THE GAME: Upper section of the classic Yahtzee
-                        dice game. You have 5 dices and
-                        for the every dice you have 3
-                        throws. After each throw you can keep dices in
+                        dice game. You have {NBR_OF_DICES} dices and
+                        for the every dice you have {NBR_OF_THROWS} throws. After each throw you can keep dices in
                         order to get same dice spot counts as many as
                         possible. In the end of the turn you must select
-                        your points from 1 to 6.
+                        your points from {MIN_SPOT} to {MAX_SPOT}.
                         Game ends when all points have been selected.
                         The order for selecting those is free</Text>
                     <Text style={styles.gameInfo}>POINTS: After each turn game calculates the sum
                         for the dices you selected. Only the dices having
                         the same spot count are calculated. Inside the
-                        game you can not select same points from
-                        1 to 6 again.</Text>
-                    <Text style={styles.gameInfo}>GOAL: To get points as much as possible.
-                        63 points is the limit of
-                        getting bonus which gives you 50
-                        points more.</Text>
+                        game you can not select same points from {MIN_SPOT} to {MAX_SPOT} again.</Text>
+                    <Text style={styles.gameInfo}>GOAL: To get points as much as possible. {BONUS_POINTS_LIMIT} points is the limit of
+                        getting bonus which gives you {BONUS_POINTS} points more.</Text>
 
                     <Text style={styles.frontPageText}>Good luck, {playerName}</Text>
                     <Pressable onPress={() => navigation.navigate('Gameboard', { player: playerName })}>
@@ -54,6 +52,7 @@ export default Home = ({ navigation }) => {
                     </Pressable>
                 </>
             }
+            <Footer/>
         </View>
     )
 }

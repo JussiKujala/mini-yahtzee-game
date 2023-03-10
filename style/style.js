@@ -109,6 +109,16 @@ export default StyleSheet.create({
     borderBottomColor: 'black', 
     margin: 10,
     fontSize: 15 
-  }
+  },gameTotalPoints:{
+    fontSize: 20,
+
+  },materialIcon:{
+    marginTop: -50
+  },emptyScoreboardText: {
+    fontSize: 18,
+    textAlign: 'center',
+    marginTop: 20,
+    fontStyle: 'italic',
+  },
 });
 

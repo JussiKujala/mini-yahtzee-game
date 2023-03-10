@@ -2,7 +2,7 @@ import { Text, View, Pressable } from 'react-native';
 import styles from '../style/style';
 import { useEffect, useState } from 'react';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { NBR_OF_DICES, NBR_OF_THROWS, MAX_SPOT, SCOREBOARD_KEY } from '../constants/Game';
+import { NBR_OF_DICES, NBR_OF_THROWS, MIN_SPOT, MAX_SPOT, SCOREBOARD_KEY, BONUS_POINTS_LIMIT, BONUS_POINTS } from '../constants/Game';
 import { Grid, Col } from 'react-native-easy-grid';
 import style from '../style/style';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -28,6 +28,7 @@ export default Gameboard = ({ route }) => {
   for (let i = 0; i < NBR_OF_DICES; i++) {
     row.push(
       <Pressable
+        disabled={nbrOfThrowsleft === 3}
         key={"row" + i}
         onPress={() => selectDice(i)}>
         <MaterialCommunityIcons
@@ -56,7 +57,9 @@ export default Gameboard = ({ route }) => {
       <Col key={"buttonsRow" + diceButton}>
         <Pressable
           onPress={() => selectDicePoints(diceButton)}
-          key={"buttonsRow" + diceButton}>
+          key={"buttonsRow" + diceButton}
+          disabled={nbrOfThrowsleft > 0}
+        >
           <MaterialCommunityIcons name={"numeric-" + (diceButton + 1) + "-circle"}
             key={"buttonsRow" + diceButton}
             size={40}
@@ -71,13 +74,21 @@ export default Gameboard = ({ route }) => {
     if (playerName === '' && route.params?.player) {
       setPlayerName(route.params.player);
     }
+
     const newSum = dicePointsTotal.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-    if (newSum >= 63) {
-      setSum(newSum + 50);
+
+    if (newSum >= BONUS_POINTS_LIMIT) {
+      setSum(newSum + BONUS_POINTS);
     } else {
       setSum(newSum);
     }
-  }, [dicePointsTotal, playerName, route.params?.player]);
+  }, [dicePointsTotal, selectedDicePoints, playerName, route.params?.player]);
+
+  useEffect(() => {
+    if (selectedDicePoints.every(x => x)) {
+      savePlayerPoints();
+    }
+  }, [sum]);
 
   useEffect(() => {
     if (nbrOfThrowsleft === 0) {
@@ -87,12 +98,6 @@ export default Gameboard = ({ route }) => {
       setNbrOfThrowsleft(NBR_OF_THROWS - 1);
     }
   }, [nbrOfThrowsleft, dicePointsTotal])
-
-  useEffect(() => {
-    if (selectedDicePoints.every(x => x)) {
-      savePlayerPoints();
-    }
-  }, [selectedDicePoints]);
 
 
   function getDiceColor(i) {
@@ -112,7 +117,7 @@ export default Gameboard = ({ route }) => {
     setNbrOfThrowsleft(NBR_OF_THROWS);
     setSelectedDices([]);
     setSelectedDicePoints(new Array(MAX_SPOT).fill(false));
-    setStatus('');
+    setStatus('Throw dices');
     setDiceSpots(new Array(NBR_OF_DICES).fill(0));
     setDicePointsTotal(new Array(MAX_SPOT).fill(0));
     setSum(0);
@@ -142,6 +147,7 @@ export default Gameboard = ({ route }) => {
     selected.fill(false);
     setSelectedDices(selected);
     setSelectedDicePoints(selectedPoints);
+    setNbrOfThrowsleft(NBR_OF_THROWS);
     return points[i];
   }
 
@@ -178,9 +184,9 @@ export default Gameboard = ({ route }) => {
   const savePlayerPoints = async () => {
     const playerPoints = {
       name: playerName,
-      date: new Date().toLocaleDateString(), 
-      time: new Date().toLocaleTimeString(), 
-      points: sum 
+      date: new Date().toLocaleDateString(),
+      time: new Date().toLocaleTimeString(),
+      points: sum
     };
     try {
       const jsonValue = await AsyncStorage.getItem(SCOREBOARD_KEY);
@@ -209,12 +215,16 @@ export default Gameboard = ({ route }) => {
     catch (error) {
       console.log('Read error: ' + error.message)
     }
-  }  
+  }
 
 
   return (
     <View style={styles.gameboard}>
+      <Header />
       <View style={styles.flex}>{row}</View>
+      {sum === 0 && nbrOfThrowsleft === 3 && selectedDicePoints.every(x => !x) ? (
+        <MaterialCommunityIcons style={styles.materialIcon} name="dice-multiple" size={75} color={"steelblue"} />
+      ) : null}
       <Text style={styles.gameinfo}>Throws left: {nbrOfThrowsleft}</Text>
       <Text style={styles.gameinfo}>{status}</Text>
       {selectedDicePoints.every(x => x) ? (
@@ -231,11 +241,14 @@ export default Gameboard = ({ route }) => {
         </Pressable>
       )}
 
-      <Text>Total: {sum}</Text>
-      <Text>You are {63 - sum} points away from bonus</Text>
+      <Text style={styles.gameTotalPoints}>Total: {sum}</Text>
+      {sum <= BONUS_POINTS_LIMIT ? (
+        <Text>You are {BONUS_POINTS_LIMIT - sum} points away from bonus</Text>
+      ) : (<Text>You have earned a bonus! ({BONUS_POINTS} points)</Text>)}
       <View style={styles.dicepoints}><Grid>{pointsRow}</Grid></View>
       <View style={styles.dicepoints}><Grid>{ButtonsRow}</Grid></View>
       <Text>Player: {playerName}</Text>
+      <Footer />
     </View>
   )
 }
